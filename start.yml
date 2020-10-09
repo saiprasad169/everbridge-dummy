@@ -1,0 +1,31 @@
+---
+- name: This is used to start EC2 instance 
+  hosts: "{{ ansible_hosts }}"
+  become: true
+  become_method: sudo
+  tasks:
+  - name: Start the EC2 instances
+    ec2:
+      instance_ids: "{{ aws_instance_id }}"
+      region: "{{ aws_region }}"
+      state: running
+      wait: yes
+  - name: Waiting for the server to start the services
+    wait_for:
+      timeout: "{{ wait_time }}"
+  - name: Check Service Status 
+    command: systemctl status "{{ services }}"
+    with_items:
+    - "{{ services }}"
+    register: result
+    ignore_errors: yes
+    delegate_to: "{{ aws_ec2_ip }}"
+  - name: showing report
+    debug:
+     var: result
+  - name: Manage Services
+    command: systemctl start "{{ services }}"  
+    with_items:
+    - "{{ services }}"
+    changed_when: false
+    delegate_to: "{{ aws_ec2_ip }}"
