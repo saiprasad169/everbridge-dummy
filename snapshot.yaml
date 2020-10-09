@@ -1,0 +1,19 @@
+---
+- hosts: "{{ ansible_hosts }}"
+  tasks:
+
+    - name: Gather Snapshot gather_facts
+      ec2_snapshot_facts:
+        aws_access_key: "{{ aws_access_key_id }}"
+        aws_secret_key: "{{ aws_secret_access_key }}"
+        ec2_region: "{{ aws_region }}"
+
+    - name: Create Vol Snapshot
+      ec2_snapshot:
+        aws_access_key: "{{ aws_access_key_id }}"
+        aws_secret_key: "{{ aws_secret_access_key }}"
+        ec2_region: "{{ aws_region }}"
+        instance_id: "{{ aws_instance_id }}"
+        device_name: "{{ aws_device }}"
+        state: present
+        description: "{{ aws_description }}"
